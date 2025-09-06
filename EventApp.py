@@ -225,6 +225,7 @@ class EventApp:
                 self.limpiar_campos()
                 self.actualizar_lista_eventos()
 
+
 if __name__ == '__main__':
     root = tk.Tk()
     app = EventApp(root, "usuario_prueba")
