@@ -26,6 +26,7 @@ class EventApp:
 
         self.crear_formulario_evento()
         self.crear_lista_eventos()
+        self.crear_seccion_busqueda()  
         self.actualizar_lista_eventos()
 
     def crear_formulario_evento(self):
@@ -41,7 +42,7 @@ class EventApp:
         self.descripcion_entry = tk.Entry(self.form_frame, font=label_font, bg="#fff", fg="#263445")
         self.descripcion_entry.grid(row=1, column=1, sticky="we", padx=5, pady=4)
 
-        tk.Label(self.form_frame, text="Fecha (YYYY-MM-DD):", font=label_font, fg=label_fg, bg="#e0e0e0").grid(row=2, column=0, sticky="w", padx=5, pady=4)
+        tk.Label(self.form_frame, text="Fecha (DD-MM-YYYY):", font=label_font, fg=label_fg, bg="#e0e0e0").grid(row=2, column=0, sticky="w", padx=5, pady=4)
         self.fecha_entry = tk.Entry(self.form_frame, font=label_font, bg="#fff", fg="#263445")
         self.fecha_entry.grid(row=2, column=1, sticky="we", padx=5, pady=4)
 
@@ -113,6 +114,7 @@ class EventApp:
         self.listbox = tk.Listbox(self.list_frame, height=18, font=("Segoe UI", 10), bg="#fff", fg="#263445", selectbackground="#b3e5fc", selectforeground="#263445", bd=1, relief=tk.FLAT)
         self.listbox.pack(side="left", fill="both", expand=True, padx=(0, 8), pady=8)
         self.listbox.bind('<<ListboxSelect>>', self.seleccionar_evento)
+        self.listbox.bind('<ButtonRelease-1>', self.seleccionar_evento)
 
         scrollbar = tk.Scrollbar(self.list_frame, orient="vertical", command=self.listbox.yview)
         scrollbar.pack(side="right", fill="y", pady=8)
@@ -125,11 +127,30 @@ class EventApp:
         self.eliminar_btn = tk.Button(btn_frame, text="Eliminar", command=self.eliminar_evento_seleccionado, state="disabled", font=button_font_small, bg="#f44336", fg="white", relief=tk.RAISED, bd=2, padx=8, pady=4, cursor="hand2", activebackground="#c62828")
         self.eliminar_btn.pack(side="left", padx=8)
 
-    def actualizar_lista_eventos(self):
+    def crear_seccion_busqueda(self):
+        search_frame = tk.LabelFrame(self.main_frame, text="Búsqueda de Eventos", bg="#e0e0e0", fg="#263445", font=("Segoe UI", 12, "bold"), bd=2, relief=tk.GROOVE)
+        search_frame.pack(side=tk.TOP, fill="x", padx=5, pady=5)  # Usa pack en vez de grid
+    
+        tk.Label(search_frame, text="Buscar por Nombre/Categoría:", bg="#e0e0e0").pack(side=tk.LEFT, padx=5, pady=2)
+        self.search_entry = tk.Entry(search_frame)
+        self.search_entry.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
+        tk.Button(search_frame, text="Buscar", command=self.ejecutar_busqueda).pack(side=tk.LEFT, padx=5, pady=2)
+        tk.Button(search_frame, text="Mostrar Todos", command=lambda: self.actualizar_lista_eventos()).pack(side=tk.LEFT, padx=5, pady=2)
+        search_frame.grid_columnconfigure(1, weight=1)
+
+    def ejecutar_busqueda(self):
+        termino = self.search_entry.get()
+        self.actualizar_lista_eventos(termino)
+
+    def actualizar_lista_eventos(self, termino_busqueda=None):
         self.listbox.delete(0, tk.END)
-        eventos = self.event_manager.obtener_eventos()
+        if termino_busqueda:
+            eventos = self.event_manager.buscar_eventos(termino_busqueda)
+        else:
+            eventos = self.event_manager.obtener_eventos()
+            
         for evento in eventos:
-            self.listbox.insert(tk.END, f"ID: {evento[0]} | {evento[1]} | {evento[3]} | Cupos: {evento[6]} | Creador: {evento[7]}")
+            self.listbox.insert(tk.END, f"Nombre: {evento[1]} | Fecha: {evento[3]} | Categoría: {evento[4]} | Precio: {evento[5]} | Cupos: {evento[6]}")
 
     def seleccionar_evento(self, event=None):
         seleccion = self.listbox.curselection()
@@ -169,7 +190,8 @@ class EventApp:
                     self.categoria_entry.config(state="disabled")
                     self.precio_entry.config(state="disabled")
                     self.cupos_entry.config(state="disabled")
-                    messagebox.showinfo("Información", "No puedes editar o eliminar este evento. Solo puedes editar los eventos que creaste.")
+                    if event and event.type == tk.EventType.ButtonRelease:
+                        messagebox.showinfo("Información", "No puedes editar o eliminar este evento. Solo puedes editar los eventos que creaste.")
             else:
                 self.limpiar_campos()
                 self.actualizar_lista_eventos()
