@@ -12,9 +12,9 @@ class EventManager:
                 id INTEGER PRIMARY KEY,
                 nombre TEXT NOT NULL,
                 descripcion TEXT,
-                fecha TEXT NOT NULL,
+                fecha DATE NOT NULL,
                 categoria TEXT,
-                precio_entrada REAL NOT NULL,
+                precio_entrada INTEGER NOT NULL,
                 cupos_disponibles INTEGER NOT NULL,
                 creado_por TEXT NOT NULL
             )
@@ -33,6 +33,12 @@ class EventManager:
         self.cursor.execute("SELECT * FROM eventos")
         return self.cursor.fetchall()
     
+    def buscar_eventos(self, termino_busqueda):
+        """Busca eventos por nombre o categoría."""
+        sql = "SELECT * FROM eventos WHERE nombre LIKE ? OR categoria LIKE ?"
+        self.cursor.execute(sql, ('%' + termino_busqueda + '%', '%' + termino_busqueda + '%'))
+        return self.cursor.fetchall()
+
     def obtener_evento_por_id(self, id_evento):
         self.cursor.execute("SELECT * FROM eventos WHERE id=?", (id_evento,))
         return self.cursor.fetchone()
