@@ -7,8 +7,8 @@ class LoginApp:
         self.root = root
         self.on_success_callback = on_success_callback
         self.root.title("Bienvenido a Micro-Eventos")
-        self.root.geometry("400x480")
-        self.root.resizable(False, False)
+        self.root.state('zoomed') 
+        self.root.resizable(True, True)
         self.user_manager = UserManager()
 
         # Fondo principal
