@@ -68,6 +68,7 @@ class EventApp:
             entry = tk.Entry(self.form_frame, font=entry_font, bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
             entry.grid(row=i, column=1, sticky="we", padx=6, pady=6, ipady=3)
             setattr(self, attr, entry)
+            #
 
         button_font = ("Segoe UI", 11, "bold")
         self.crear_btn = tk.Button(
@@ -83,6 +84,7 @@ class EventApp:
             cursor="hand2", activebackground="#c62828"
         )
         self.cancelar_btn.grid(row=7, column=0, columnspan=2, pady=(6, 6), sticky="we")
+
 
         self.form_frame.grid_columnconfigure(1, weight=1)
 
