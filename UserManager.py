@@ -17,21 +17,28 @@ class UserManager:
         ''')
         self.conn.commit()
 
+    def hash_password(self, password):
+        return hashlib.sha256(password.strip().encode('utf-8')).hexdigest()
+    
     def crear_usuario(self, username, password):
+        hashed = self.hash_password(password)
         try:
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
-            self.cursor.execute("INSERT INTO usuarios (username, password) VALUES (?, ?)", (username, hashed_password))
-            self.conn.commit()
+            self.cursor.execute(
+                "INSERT INTO usuarios (username, password) VALUES (?, ?)",
+                (username.strip(), hashed)
+            )
+            self.conn.commit() 
             return True
         except sqlite3.IntegrityError:
             return False
 
     def verificar_usuario(self, username, password):
-        self.cursor.execute("SELECT password FROM usuarios WHERE username=?", (username,))
-        result = self.cursor.fetchone()
-        
-        if result:
-            hashed_password = result[0]
-            if hashed_password == hashlib.sha256(password.encode()).hexdigest():
-                return True
+        hashed = self.hash_password(password)
+        self.cursor.execute(
+            "SELECT password FROM usuarios WHERE username = ?",
+            (username.strip(),)
+        )
+        row = self.cursor.fetchone()
+        if row and row[0] == hashed:
+            return True
         return False
