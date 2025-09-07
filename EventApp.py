@@ -17,7 +17,7 @@ class EventApp:
         self.main_frame = tk.Frame(root, bg="#263445")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
-        #Titulo
+        # Título
         tk.Label(
             self.main_frame, text="Gestión de Micro-Eventos",
             font=("Segoe UI", 20, "bold"), bg="#263445", fg="#fff"
@@ -30,26 +30,126 @@ class EventApp:
         )
         self.subtitle_label.pack(pady=(0, 20))
         
-        # Frame para las dos columnas (formulario y listas)
-        content_frame = tk.Frame(self.main_frame, bg="#34495e", bd=2, relief=tk.RIDGE)
-        content_frame.pack(pady=10, padx=10, fill="both", expand=True)
+        # Frame para las dos columnas (formulario/registro y listas)
+        content_frame_padre = tk.Frame(self.main_frame, bg="#34495e", bd=2, relief=tk.RIDGE)
+        content_frame_padre.pack(pady=(10, 5), padx=10, fill=tk.BOTH, expand=True)
 
+        # Frame para las dos listas de eventos y la búsqueda
+        lists_and_search_frame = tk.Frame(content_frame_padre, bg="#34495e")
+        lists_and_search_frame.pack(side=tk.RIGHT, fill="both", expand=True)
+        
+        # Frame para el formulario y el registro (comparten el mismo espacio)
+        self.toggle_frame = tk.Frame(content_frame_padre, bg="#34495e")
+        self.toggle_frame.pack(side=tk.LEFT, fill="y", padx=(0, 24), pady=8)
+
+        # Frames para formulario y registro
         self.form_frame = tk.LabelFrame(
-            content_frame, text="Crear/Actualizar Evento",
+            self.toggle_frame, text="Crear/Actualizar Evento",
             bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
             bd=2, relief=tk.GROOVE, padx=16, pady=16
         )
-        self.form_frame.pack(side=tk.LEFT, fill="y", padx=(0, 24), pady=8, ipadx=8, ipady=8)
-
-        # Frame para las dos listas de eventos y la búsqueda
-        lists_and_search_frame = tk.Frame(content_frame, bg="#34495e")
-        lists_and_search_frame.pack(side=tk.RIGHT, fill="both", expand=True)
         
+        self.registro_frame = tk.LabelFrame(
+            self.toggle_frame, text="Registro",
+            bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
+            bd=2, relief=tk.GROOVE, padx=16, pady=16
+        )
+
+        # Frame para los botones de alternancia
+        btn_frame = tk.Frame(self.toggle_frame, bg="#34495e")
+        btn_frame.pack(fill="x", pady=(0, 10))
+
+        # Botones para alternar entre formulario y registro con depuración
+        tk.Button(btn_frame, text="Eventos", command=self.mostrar_formulario,
+            bg="#4a6a8b", fg="#fff", font=("Segoe UI", 10, "bold")
+        ).pack(side="left", padx=5, pady=5)
+        tk.Button(btn_frame, text="Registros", command=self.mostrar_registros,
+            bg="#4a6a8b", fg="#fff", font=("Segoe UI", 10, "bold")
+        ).pack(side="left", padx=5, pady=5)
+        
+        # Contenido de prueba para el formulario
+        self.crear_formulario_evento()
+        # Contenido de prueba para el registro
+        self.crear_registros()
+
+        # Métodos para las listas y búsqueda
         self.crear_seccion_busqueda(lists_and_search_frame)
         self.crear_listas_eventos(lists_and_search_frame)
-        self.crear_formulario_evento()
         self.actualizar_listas_eventos()
-        
+
+        # Mostrar inicialmente el formulario
+        print("Inicializando: Mostrando formulario por defecto")
+        self.mostrar_formulario()
+
+    def mostrar_formulario(self):
+        """Muestra el formulario y oculta el registro."""
+        print("Botón Formulario: Mostrando formulario")
+        self.registro_frame.pack_forget()
+        self.form_frame.pack(fill="y", padx=(0, 24), pady=8, ipadx=8, ipady=8)
+
+    def mostrar_registros(self):
+        """Muestra el registro y oculta el formulario."""
+        print("Botón Registros: Mostrando registros")
+        self.form_frame.pack_forget()
+        self.registro_frame.pack(fill="y", padx=(0, 24), pady=8, ipadx=8, ipady=8)
+        self.crear_registros()
+
+    def crear_registros(self):
+        # Limpiar contenido previo
+        for widget in self.registro_frame.winfo_children():
+            widget.destroy()
+
+        label_font = ("Segoe UI", 11)
+        label_fg = "#fff"
+
+        eventos = self.event_manager.obtener_eventos()
+        agotados = sum(1 for e in eventos if e[6] == 0)
+
+        # Total eventos
+        tk.Label(self.registro_frame, text="Total eventos registrados:", 
+                font=label_font, fg=label_fg, bg="#34495e").grid(row=0, column=0, sticky="w", padx=6, pady=6)
+        tk.Label(self.registro_frame, text=len(eventos), 
+                font=label_font, fg=label_fg, bg="#34495e").grid(row=0, column=1, sticky="w", padx=6, pady=6)
+
+        # Total agotados
+        tk.Label(self.registro_frame, text="Total eventos agotados:", 
+                font=label_font, fg=label_fg, bg="#34495e").grid(row=1, column=0, sticky="w", padx=6, pady=6)
+        tk.Label(self.registro_frame, text=agotados, 
+                font=label_font, fg=label_fg, bg="#34495e").grid(row=1, column=1, sticky="w", padx=6, pady=6)
+
+        # Cupos disponibles con scroll
+        tk.Label(self.registro_frame, text="Cupos disponibles:", 
+                font=label_font, fg=label_fg, bg="#34495e").grid(row=2, column=0, sticky="w", padx=6, pady=6, columnspan=2)
+
+        # Canvas + Scrollbar
+        canvas = tk.Canvas(self.registro_frame, bg="#34495e", highlightthickness=0)
+        scrollbar = tk.Scrollbar(self.registro_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg="#34495e")
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.grid(row=3, column=0, columnspan=2, sticky="nsew")
+        scrollbar.grid(row=3, column=2, sticky="ns", pady=2)
+
+        # Aseguramos que el canvas crezca con el frame
+        self.registro_frame.grid_rowconfigure(3, weight=1)
+        self.registro_frame.grid_columnconfigure(0, weight=1)
+
+        # Agregamos los registros dentro del scrollable_frame
+        for i, evento in enumerate(eventos):
+            tk.Label(scrollable_frame, text=f"- {evento[1]}", 
+                    font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=0, sticky="w", padx=6, pady=2)
+            tk.Label(scrollable_frame, text=evento[6], 
+                    font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=1, sticky="w", padx=6, pady=2)
+
     def crear_formulario_evento(self):
         label_font = ("Segoe UI", 11)
         entry_font = ("Segoe UI", 11)
@@ -133,6 +233,7 @@ class EventApp:
         self.eliminar_btn_mis_eventos.config(state="disabled")
 
     def crear_seccion_busqueda(self, parent_frame):
+        self.search_entry = ["","","","", ""]
         search_frame = tk.LabelFrame(
             parent_frame, text="Búsqueda de Eventos",
             bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
@@ -140,17 +241,44 @@ class EventApp:
         )
         search_frame.pack(side=tk.TOP, fill="x", pady=(8, 12))
         
-        tk.Label(search_frame, text="Buscar por Nombre/Categoría:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
-        self.search_entry = tk.Entry(search_frame, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
-        self.search_entry.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
-        self.search_entry.bind('<KeyRelease>', self.on_search_change)
+        sub_frame = tk.Frame(search_frame, bg="#34495e")
+        sub_frame.pack(fill="x", pady=5)
+
+        sub_frame2 = tk.Frame(search_frame, bg="#34495e")
+        sub_frame2.pack(fill="x", pady=5)
+
+        tk.Label(sub_frame, text="Buscar por Nombre/Descripcion:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
+        self.search_entry0 = tk.Entry(sub_frame, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
+        self.search_entry0.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
+        self.search_entry0.bind('<KeyRelease>', self.on_search_change)
+
+        tk.Label(sub_frame, text="Categoria:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
+        self.search_entry1 = tk.Entry(sub_frame, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
+        self.search_entry1.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
+        self.search_entry1.bind('<KeyRelease>', self.on_search_change)
+
+        tk.Label(sub_frame2, text="Precio Min:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
+        self.search_entry2 = tk.Entry(sub_frame2, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
+        self.search_entry2.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
+        self.search_entry2.bind('<KeyRelease>', self.on_search_change)
+
         
+        tk.Label(sub_frame2, text="Precio Max:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
+        self.search_entry3 = tk.Entry(sub_frame2, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
+        self.search_entry3.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
+        self.search_entry3.bind('<KeyRelease>', self.on_search_change)
+
+        
+        tk.Label(sub_frame2, text="Fecha:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
+        self.search_entry4 = tk.Entry(sub_frame2, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
+        self.search_entry4.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
+        self.search_entry4.bind('<KeyRelease>', self.on_search_change)
+
         tk.Button(
-            search_frame, text="Buscar", command=self.ejecutar_busqueda,
+            sub_frame, text="Buscar", command=self.ejecutar_busqueda,
             font=("Segoe UI", 11, "bold"), bg="#2196F3", fg="white",
             relief=tk.FLAT, bd=0, padx=10, pady=4, cursor="hand2", activebackground="#1976d2"
         ).pack(side=tk.LEFT, padx=8, pady=2)
-
 
     def crear_listas_eventos(self, parent_frame):
         # Frame para las dos listas de eventos
@@ -208,14 +336,14 @@ class EventApp:
         self.all_listbox.config(yscrollcommand=scrollbar_all.set)
 
     def on_search_change(self, event=None):
-        termino = self.search_entry.get()
+        termino = [self.search_entry0.get(), self.search_entry1.get(), self.search_entry2.get(), self.search_entry3.get(), self.search_entry4.get()]
         self.actualizar_listas_eventos(termino)
 
     def ejecutar_busqueda(self):
-        termino = self.search_entry.get()
+        termino = termino = [self.search_entry0.get(), self.search_entry1.get(), self.search_entry2.get(), self.search_entry3.get(), self.search_entry4.get()]
         self.actualizar_listas_eventos(termino)
 
-    def actualizar_listas_eventos(self, termino_busqueda=""):
+    def actualizar_listas_eventos(self, termino_busqueda=["","","","",""]):
         self.my_listbox.delete(0, tk.END)
         self.all_listbox.delete(0, tk.END)
 
@@ -226,6 +354,7 @@ class EventApp:
                 self.my_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
             else:
                 self.all_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
+    
     def seleccionar_evento_propio(self, event=None):
         seleccion = self.my_listbox.curselection()
         if seleccion:
