@@ -8,33 +8,41 @@ class EventApp:
         self.root.title("Gestión de Micro-Eventos")
         self.root.state('zoomed')
         self.root.resizable(True, True)
-        self.root.configure(bg="#f5f7fa")
+        self.root.configure(bg="#263445")
         
         self.event_manager = EventManager()
         self.username = username
         self.selected_event_id = None
 
-        self.main_frame = tk.Frame(root, bg="#f5f7fa")
-        self.main_frame.pack(fill="both", expand=True, padx=24, pady=24)
+        self.main_frame = tk.Frame(root, bg="#263445")
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
 
+        #Titulo
         tk.Label(
             self.main_frame, text="Gestión de Micro-Eventos",
-            font=("Segoe UI", 24, "bold"), bg="#f5f7fa", fg="#263445"
-        ).pack(pady=(0, 18))
+            font=("Segoe UI", 20, "bold"), bg="#263445", fg="#fff"
+        ).pack(pady=(20, 10))
+
+        # Subtítulo
+        self.subtitle_label = tk.Label(
+            self.main_frame, text=f"Bienvenido, {self.username}",
+            font=("Segoe UI", 12), bg="#263445", fg="#b3e5fc"
+        )
+        self.subtitle_label.pack(pady=(0, 20))
         
         # Frame para las dos columnas (formulario y listas)
-        content_frame = tk.Frame(self.main_frame, bg="#f5f7fa")
-        content_frame.pack(fill="both", expand=True)
+        content_frame = tk.Frame(self.main_frame, bg="#34495e", bd=2, relief=tk.RIDGE)
+        content_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
         self.form_frame = tk.LabelFrame(
             content_frame, text="Crear/Actualizar Evento",
-            bg="#e3eaf2", fg="#263445", font=("Segoe UI", 13, "bold"),
+            bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
             bd=2, relief=tk.GROOVE, padx=16, pady=16
         )
         self.form_frame.pack(side=tk.LEFT, fill="y", padx=(0, 24), pady=8, ipadx=8, ipady=8)
 
         # Frame para las dos listas de eventos y la búsqueda
-        lists_and_search_frame = tk.Frame(content_frame, bg="#f5f7fa")
+        lists_and_search_frame = tk.Frame(content_frame, bg="#34495e")
         lists_and_search_frame.pack(side=tk.RIGHT, fill="both", expand=True)
         
         self.crear_seccion_busqueda(lists_and_search_frame)
@@ -45,7 +53,7 @@ class EventApp:
     def crear_formulario_evento(self):
         label_font = ("Segoe UI", 11)
         entry_font = ("Segoe UI", 11)
-        label_fg = "#263445"
+        label_fg = "#fff"
 
         campos = [
             ("Nombre:", "nombre_entry"),
@@ -56,23 +64,23 @@ class EventApp:
             ("Cupos:", "cupos_entry"),
         ]
         for i, (label, attr) in enumerate(campos):
-            tk.Label(self.form_frame, text=label, font=label_font, fg=label_fg, bg="#e3eaf2").grid(row=i, column=0, sticky="w", padx=6, pady=6)
-            entry = tk.Entry(self.form_frame, font=entry_font, bg="#fff", fg="#263445", relief=tk.FLAT, bd=2)
+            tk.Label(self.form_frame, text=label, font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=0, sticky="w", padx=6, pady=6)
+            entry = tk.Entry(self.form_frame, font=entry_font, bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
             entry.grid(row=i, column=1, sticky="we", padx=6, pady=6, ipady=3)
             setattr(self, attr, entry)
 
         button_font = ("Segoe UI", 11, "bold")
         self.crear_btn = tk.Button(
             self.form_frame, text="Crear Evento", command=self.guardar_evento,
-            font=button_font, bg="#4CAF50", fg="white", relief=tk.RAISED, bd=2,
-            padx=10, pady=6, cursor="hand2", activebackground="#388e3c"
+            font=button_font, bg="#1abc9c", fg="white", bd=0, relief=tk.FLAT, padx=18, pady=8,
+            cursor="hand2", activebackground="#16a085"
         )
         self.crear_btn.grid(row=6, column=0, columnspan=2, pady=(18, 6), sticky="we")
 
         self.cancelar_btn = tk.Button(
             self.form_frame, text="Cancelar", command=self.limpiar_campos,
-            font=button_font, bg="#f44336", fg="white", relief=tk.RAISED, bd=2,
-            padx=10, pady=6, cursor="hand2", activebackground="#c62828"
+            font=button_font, bg="#f44336", fg="white", bd=0, relief=tk.FLAT, padx=18, pady=8,
+            cursor="hand2", activebackground="#c62828"
         )
         self.cancelar_btn.grid(row=7, column=0, columnspan=2, pady=(6, 6), sticky="we")
 
@@ -125,27 +133,32 @@ class EventApp:
     def crear_seccion_busqueda(self, parent_frame):
         search_frame = tk.LabelFrame(
             parent_frame, text="Búsqueda de Eventos",
-            bg="#e3eaf2", fg="#263445", font=("Segoe UI", 13, "bold"),
+            bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
             bd=2, relief=tk.GROOVE, padx=12, pady=8
         )
         search_frame.pack(side=tk.TOP, fill="x", pady=(8, 12))
         
-        tk.Label(search_frame, text="Buscar por Nombre/Categoría:", bg="#e3eaf2", font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
-        self.search_entry = tk.Entry(search_frame)
+        tk.Label(search_frame, text="Buscar por Nombre/Categoría:", bg="#34495e", fg="#fff",font=("Segoe UI", 11)).pack(side=tk.LEFT, padx=8)
+        self.search_entry = tk.Entry(search_frame, font=("Segoe UI", 11), bg="#f8f8f8", fg="#263445", relief=tk.FLAT, bd=2)
         self.search_entry.pack(side=tk.LEFT, fill="x", expand=True, padx=5, pady=2)
         self.search_entry.bind('<KeyRelease>', self.on_search_change)
         
-        tk.Button(search_frame, text="Buscar", command=self.ejecutar_busqueda, font=("Segoe UI", 11, "bold"), bg="#2196F3", fg="white", relief=tk.RAISED, bd=2, padx=10, pady=4, cursor="hand2", activebackground="#1976d2").pack(side=tk.LEFT, padx=8, pady=2)
+        tk.Button(
+            search_frame, text="Buscar", command=self.ejecutar_busqueda,
+            font=("Segoe UI", 11, "bold"), bg="#2196F3", fg="white",
+            relief=tk.FLAT, bd=0, padx=10, pady=4, cursor="hand2", activebackground="#1976d2"
+        ).pack(side=tk.LEFT, padx=8, pady=2)
+
 
     def crear_listas_eventos(self, parent_frame):
         # Frame para las dos listas de eventos
-        event_lists_frame = tk.Frame(parent_frame, bg="#f5f7fa")
+        event_lists_frame = tk.Frame(parent_frame, bg="#34495e")
         event_lists_frame.pack(fill="both", expand=True)
 
         # Mi lista de eventos
         my_events_frame = tk.LabelFrame(
             event_lists_frame, text="Mis Eventos",
-            bg="#e3eaf2", fg="#263445", font=("Segoe UI", 13, "bold"),
+            bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
             bd=2, relief=tk.GROOVE, padx=16, pady=16
         )
         my_events_frame.pack(side=tk.LEFT, fill="both", expand=True, padx=(0, 12))
@@ -163,19 +176,19 @@ class EventApp:
         scrollbar_my.pack(side="right", fill="y", pady=8)
         self.my_listbox.config(yscrollcommand=scrollbar_my.set)
 
-        btn_frame_my = tk.Frame(my_events_frame, bg="#e3eaf2")
+        btn_frame_my = tk.Frame(my_events_frame, bg="#34495e")
         btn_frame_my.pack(side="bottom", pady=8)
         self.eliminar_btn_mis_eventos = tk.Button(
             btn_frame_my, text="Eliminar", command=self.eliminar_evento_seleccionado,
             state="disabled", font=("Segoe UI", 11, "bold"), bg="#f44336", fg="white",
-            relief=tk.RAISED, bd=2, padx=10, pady=6, cursor="hand2", activebackground="#c62828"
+            relief=tk.FLAT, bd=0, padx=10, pady=6, cursor="hand2", activebackground="#c62828"
         )
         self.eliminar_btn_mis_eventos.pack(side="left", padx=8)
 
         # Todos los eventos
         all_events_frame = tk.LabelFrame(
             event_lists_frame, text="Todos los Eventos",
-            bg="#e3eaf2", fg="#263445", font=("Segoe UI", 13, "bold"),
+            bg="#34495e", fg="#fff", font=("Segoe UI", 13, "bold"),
             bd=2, relief=tk.GROOVE, padx=16, pady=16
         )
         all_events_frame.pack(side=tk.RIGHT, fill="both", expand=True, padx=(12, 0))
@@ -208,10 +221,9 @@ class EventApp:
         
         for evento in eventos:
             if evento[7] == self.username:
-                self.my_listbox.insert(tk.END, f"Nombre: {evento[1]} | Fecha: {evento[3]} | Cupos: {evento[6]}")
+                self.my_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
             else:
-                self.all_listbox.insert(tk.END, f"Nombre: {evento[1]} | Fecha: {evento[3]} | Cupos: {evento[6]}")
-
+                self.all_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
     def seleccionar_evento_propio(self, event=None):
         seleccion = self.my_listbox.curselection()
         if seleccion:
@@ -235,7 +247,7 @@ class EventApp:
                 evento = eventos_ajenos[index]
                 self.selected_event_id = evento[0]
                 self.cargar_datos_evento(evento, False)
-                messagebox.showinfo("Información", "No puedes editar o eliminar este evento. Solo puedes editar los eventos que creaste.")
+                
             else:
                 self.limpiar_campos()
                 
