@@ -11,6 +11,8 @@ class LoginApp:
         self.root.resizable(True, True)
         self.user_manager = UserManager()
 
+        self.mode = 'login'  
+
         # Fondo principal
         self.root.configure(bg="#263445")
 
@@ -22,7 +24,8 @@ class LoginApp:
         tk.Label(self.main_frame, text="Gestión de Micro-Eventos", font=("Segoe UI", 20, "bold"), bg="#263445", fg="#fff").pack(pady=(20, 10))
 
         # Subtítulo
-        tk.Label(self.main_frame, text="Inicia sesión o crea tu cuenta", font=("Segoe UI", 12), bg="#263445", fg="#b3e5fc").pack(pady=(0, 20))
+        self.subtitle_label = tk.Label(self.main_frame, text="Inicia sesión o crea tu cuenta", font=("Segoe UI", 12), bg="#263445", fg="#b3e5fc")
+        self.subtitle_label.pack(pady=(0, 20))
 
         # Frame de inputs
         input_frame = tk.Frame(self.main_frame, bg="#34495e", bd=2, relief=tk.RIDGE)
@@ -56,6 +59,16 @@ class LoginApp:
         )
         self.register_button.pack(side=tk.LEFT, padx=10)
 
+        self.volver_button = tk.Button(
+            button_frame, text="Volver", font=("Segoe UI", 11, "bold"),
+            bg="#607d8b", fg="#fff", bd=0, relief=tk.FLAT, padx=18, pady=8,
+            command=self.volver_a_login, cursor="hand2", activebackground="#455a64"
+        )
+
+        self.volver_button.pack(side=tk.LEFT, padx=10)
+        self.volver_button.pack_forget() 
+
+
         # Estilos de focus
         self.username_entry.bind("<FocusIn>", lambda e: self.username_entry.config(bg="#e3f2fd"))
         self.username_entry.bind("<FocusOut>", lambda e: self.username_entry.config(bg="#f8f8f8"))
@@ -71,6 +84,13 @@ class LoginApp:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
 
     def crear_cuenta(self):
+        self.mode = "register"
+        self.subtitle_label.config(text="Creando nueva cuenta")
+        self.login_button.pack_forget()
+        self.register_button.config(text="Registrar", command=self.confirmar_creacion_cuenta)
+        self.volver_button.pack(side=tk.LEFT, padx=10)
+        
+    def confirmar_creacion_cuenta(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
         if not username or not password:
@@ -79,7 +99,16 @@ class LoginApp:
 
         if self.user_manager.crear_usuario(username, password):
             messagebox.showinfo("¡Éxito!", "Cuenta creada con éxito. ¡Ahora puedes iniciar sesión!")
-            self.username_entry.delete(0, tk.END)
-            self.password_entry.delete(0, tk.END)
+            self.volver_a_login()
         else:
             messagebox.showerror("Error", "El usuario ya existe. Por favor, elige otro.")
+
+    def volver_a_login(self):
+        # Vuelve al modo login
+        self.mode = "login"
+        self.subtitle_label.config(text="Inicia sesión o crea tu cuenta")
+        self.login_button.pack(side=tk.LEFT, padx=10)
+        self.register_button.config(text="Crear Cuenta", command=self.crear_cuenta)
+        self.volver_button.pack_forget()
+        self.username_entry.delete(0, tk.END)
+        self.password_entry.delete(0, tk.END)

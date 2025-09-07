@@ -6,7 +6,8 @@ class EventApp:
     def __init__(self, root, username):
         self.root = root
         self.root.title("Gestión de Micro-Eventos")
-        self.root.geometry("1100x600")
+        self.root.state('zoomed')
+        self.root.resizable(True, True)
         self.root.configure(bg="#f5f7fa")
         
         self.event_manager = EventManager()
