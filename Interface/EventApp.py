@@ -1,7 +1,15 @@
 import tkinter as tk
 from tkinter import messagebox
+import sentry_sdk
 from database.EventManager import EventManager
 
+
+sentry_sdk.init(
+    dsn="https://cc7560393bcb5b46dfcfda36fbd7fc85@o4509985751629824.ingest.us.sentry.io/4509985833549824",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True, 
+)
 class EventApp:
     def __init__(self, root, username):
         self.root = root
@@ -65,7 +73,8 @@ class EventApp:
         ).pack(side="left", padx=5, pady=5)
         tk.Button(btn_frame, text="Registros", command=self.mostrar_registros,
             bg="#4a6a8b", fg="#fff", font=("Segoe UI", 10, "bold")
-        ).pack(side="left", padx=5, pady=5)
+        ).pack(side="left", padx=5, pady=5)       
+        #tk.Button(btn_frame, text="Probar Sentry", command=self.probar_sentry_error,bg="#8B0000", fg="#fff", font=("Segoe UI", 10, "bold")).pack(side="right", padx=5, pady=5)
         
         # Contenido de prueba para el formulario
         self.crear_formulario_evento()
@@ -107,19 +116,19 @@ class EventApp:
 
         # Total eventos
         tk.Label(self.registro_frame, text="Total eventos registrados:", 
-                font=label_font, fg=label_fg, bg="#34495e").grid(row=0, column=0, sticky="w", padx=6, pady=6)
+                 font=label_font, fg=label_fg, bg="#34495e").grid(row=0, column=0, sticky="w", padx=6, pady=6)
         tk.Label(self.registro_frame, text=len(eventos), 
-                font=label_font, fg=label_fg, bg="#34495e").grid(row=0, column=1, sticky="w", padx=6, pady=6)
+                 font=label_font, fg=label_fg, bg="#34495e").grid(row=0, column=1, sticky="w", padx=6, pady=6)
 
         # Total agotados
         tk.Label(self.registro_frame, text="Total eventos agotados:", 
-                font=label_font, fg=label_fg, bg="#34495e").grid(row=1, column=0, sticky="w", padx=6, pady=6)
+                 font=label_font, fg=label_fg, bg="#34495e").grid(row=1, column=0, sticky="w", padx=6, pady=6)
         tk.Label(self.registro_frame, text=agotados, 
-                font=label_font, fg=label_fg, bg="#34495e").grid(row=1, column=1, sticky="w", padx=6, pady=6)
+                 font=label_font, fg=label_fg, bg="#34495e").grid(row=1, column=1, sticky="w", padx=6, pady=6)
 
         # Cupos disponibles con scroll
         tk.Label(self.registro_frame, text="Cupos disponibles:", 
-                font=label_font, fg=label_fg, bg="#34495e").grid(row=2, column=0, sticky="w", padx=6, pady=6, columnspan=2)
+                 font=label_font, fg=label_fg, bg="#34495e").grid(row=2, column=0, sticky="w", padx=6, pady=6, columnspan=2)
 
         # Canvas + Scrollbar
         canvas = tk.Canvas(self.registro_frame, bg="#34495e", highlightthickness=0)
@@ -146,9 +155,9 @@ class EventApp:
         # Agregamos los registros dentro del scrollable_frame
         for i, evento in enumerate(eventos):
             tk.Label(scrollable_frame, text=f"- {evento[1]}", 
-                    font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=0, sticky="w", padx=6, pady=2)
+                     font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=0, sticky="w", padx=6, pady=2)
             tk.Label(scrollable_frame, text=evento[6], 
-                    font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=1, sticky="w", padx=6, pady=2)
+                     font=label_font, fg=label_fg, bg="#34495e").grid(row=i, column=1, sticky="w", padx=6, pady=2)
 
     def crear_formulario_evento(self):
         label_font = ("Segoe UI", 11)
@@ -189,38 +198,46 @@ class EventApp:
         self.form_frame.grid_columnconfigure(1, weight=1)
 
     def guardar_evento(self):
-        nombre = self.nombre_entry.get()
-        descripcion = self.descripcion_entry.get()
-        fecha = self.fecha_entry.get()
-        categoria = self.categoria_entry.get()
         try:
-            precio = float(self.precio_entry.get())
-            cupos = int(self.cupos_entry.get())
-        except ValueError:
-            messagebox.showerror("Error", "Precio y cupos deben ser números válidos.")
-            return
+            nombre = self.nombre_entry.get()
+            descripcion = self.descripcion_entry.get()
+            fecha = self.fecha_entry.get()
+            categoria = self.categoria_entry.get()
+            try:
+                precio = float(self.precio_entry.get())
+                cupos = int(self.cupos_entry.get())
+            except ValueError as e:
+                sentry_sdk.capture_exception(e)
+                messagebox.showerror("Error", "Precio y cupos deben ser números válidos.")
+                return
 
-        if not nombre or not fecha or not categoria:
-            messagebox.showerror("Error", "Completa todos los campos obligatorios.")
-            return
+            if not nombre or not fecha or not categoria:
+                messagebox.showerror("Error", "Completa todos los campos obligatorios.")
+                return
 
-        if self.selected_event_id:
-            actualizado = self.event_manager.actualizar_evento(
-                self.selected_event_id, nombre, descripcion, fecha, categoria, precio, cupos, self.username
-            )
-            if actualizado:
-                messagebox.showinfo("Éxito", "Evento actualizado correctamente.")
+            if self.selected_event_id:
+                sentry_sdk.capture_message(f"Actualizando evento ID: {self.selected_event_id}")
+                actualizado = self.event_manager.actualizar_evento(
+                    self.selected_event_id, nombre, descripcion, fecha, categoria, precio, cupos, self.username
+                )
+                if actualizado:
+                    messagebox.showinfo("Éxito", "Evento actualizado correctamente.")
+                else:
+                    messagebox.showerror("Error", "No puedes editar este evento. Solo puedes editar los eventos que creaste.")
             else:
-                messagebox.showerror("Error", "No puedes editar este evento. Solo puedes editar los eventos que creaste.")
-        else:
-            self.event_manager.crear_evento(
-                nombre, descripcion, fecha, categoria, precio, cupos, self.username
-            )
-            messagebox.showinfo("Éxito", "Evento creado correctamente.")
+                sentry_sdk.capture_message("Creando nuevo evento.")
+                self.event_manager.crear_evento(
+                    nombre, descripcion, fecha, categoria, precio, cupos, self.username
+                )
+                messagebox.showinfo("Éxito", "Evento creado correctamente.")
 
-        self.limpiar_campos()
-        self.actualizar_listas_eventos()
-    
+            self.limpiar_campos()
+            self.actualizar_listas_eventos()
+        except Exception as e:
+            # Se agregó el capture_exception para enviar el error a Sentry
+            sentry_sdk.capture_exception(e)
+            messagebox.showerror("Error", "Ocurrió un error inesperado al guardar el evento.")
+        
     def limpiar_campos(self):
         self.nombre_entry.delete(0, tk.END)
         self.descripcion_entry.delete(0, tk.END)
@@ -340,20 +357,26 @@ class EventApp:
         self.actualizar_listas_eventos(termino)
 
     def ejecutar_busqueda(self):
-        termino = termino = [self.search_entry0.get(), self.search_entry1.get(), self.search_entry2.get(), self.search_entry3.get(), self.search_entry4.get()]
+        sentry_sdk.capture_message("Búsqueda de evento activada.")
+        termino = [self.search_entry0.get(), self.search_entry1.get(), self.search_entry2.get(), self.search_entry3.get(), self.search_entry4.get()]
         self.actualizar_listas_eventos(termino)
 
     def actualizar_listas_eventos(self, termino_busqueda=["","","","",""]):
-        self.my_listbox.delete(0, tk.END)
-        self.all_listbox.delete(0, tk.END)
+        try:
+            self.my_listbox.delete(0, tk.END)
+            self.all_listbox.delete(0, tk.END)
 
-        eventos = self.event_manager.buscar_eventos(termino_busqueda)
-        
-        for evento in eventos:
-            if evento[7] == self.username:
-                self.my_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
-            else:
-                self.all_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
+            eventos = self.event_manager.buscar_eventos(termino_busqueda)
+            
+            for evento in eventos:
+                if evento[7] == self.username:
+                    self.my_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
+                else:
+                    self.all_listbox.insert(tk.END, f"Nombre: {evento[1]} | Descripción: {evento[2]}| Fecha: {evento[3]} | Precio: {evento[5]}| Cupos: {evento[6]}")
+        except Exception as e:
+            # Se agregó el capture_exception para enviar el error a Sentry
+            sentry_sdk.capture_exception(e)
+            messagebox.showerror("Error", "No se pudieron cargar los eventos.")
     
     def seleccionar_evento_propio(self, event=None):
         seleccion = self.my_listbox.curselection()
@@ -436,14 +459,27 @@ class EventApp:
                 confirmar = messagebox.askyesno("Confirmar", f"¿Estás seguro de que quieres eliminar el evento ID {id_a_eliminar}?")
                 if confirmar:
                     if self.event_manager.eliminar_evento(id_a_eliminar, self.username):
+                        # Se agregó el capture_message para Sentry
+                        sentry_sdk.capture_message(f"Evento eliminado: {id_a_eliminar}")
                         messagebox.showinfo("Éxito", f"Evento ID {id_a_eliminar} eliminado.")
                     else:
+                        sentry_sdk.capture_message(f"Advertencia: Intento fallido de eliminar el evento ID: {id_a_eliminar} por un usuario no autorizado.")
                         messagebox.showerror("Error", "No se pudo eliminar el evento. Asegúrate de ser el creador.")
                     self.actualizar_listas_eventos()
                     self.limpiar_campos()
             else:
                 self.limpiar_campos()
                 self.actualizar_listas_eventos()
+
+    def probar_sentry_error(self):
+        """Función para forzar un error y probar la integración con Sentry."""
+        try:
+            # Intencionalmente causamos un error de división por cero
+            resultado = 10 / 0
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            messagebox.showinfo("Sentry Test", "Error de prueba enviado a Sentry. Revisa tu panel.")
+    
 
 if __name__ == '__main__':
     root = tk.Tk()
