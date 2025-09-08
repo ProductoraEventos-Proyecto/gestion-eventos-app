@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from UserManager import UserManager
+from database.UserManager import UserManager
 
 class LoginApp:
     def __init__(self, root, on_success_callback):
