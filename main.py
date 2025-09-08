@@ -1,6 +1,6 @@
 import tkinter as tk
-from EventApp import EventApp
-from LoginApp import LoginApp
+from Interface.EventApp import EventApp
+from Interface.LoginApp import LoginApp
 
 def iniciar_app_eventos(login_root, username):
     login_root.destroy()

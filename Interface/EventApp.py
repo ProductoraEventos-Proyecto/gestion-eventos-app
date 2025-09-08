@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from EventManager import EventManager
+from database.EventManager import EventManager
 
 class EventApp:
     def __init__(self, root, username):
