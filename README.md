@@ -10,7 +10,7 @@ Esta es una aplicacion desarrollada en **Python** para una productora de eventos
 El proyecto fue desarrollado ene le marco del curso de **Pruebas de Software**, con un enfoque en la validación y verificación del software, la implementación de un flujo de trabajo colaborativo con **GIT** y la aplicación de buenas prácticas de programación. 
 
 ## Instalacion 
-Para la correcta ejecucion de la aplicacion es necesario tener instalado python, ademas de descargar o clonar el repositorio. Para el testing ademas de python es necesaria la instalacion de la libreria pytest por medio del comando "pip install pytest". 
+Para la correcta ejecucion de la aplicacion es necesario tener instalado python, descargar o clonar el repositorio y realizar la intalacion de dependencias por medio del comando "pip install sentry-sdk". Para el testing ademas de python es necesaria la instalacion de la libreria pytest por medio del comando "pip install pytest". 
 
 ## Como usar 
 Para utilizar la aplicacion es necesario abrir una terminal en la carpeta y ejecutar el archivo main.py a traves del comando "python main.py".
