@@ -4,7 +4,7 @@ from database.UserManager import UserManager
 import sentry_sdk
 
 sentry_sdk.init(
-    dsn="https://cc7560393bcb5b46dfcfda36fbd7fc85@o4509985751629824.ingest.us.sentry.io/4509985833549824",
+    dsn="https://f5901102ece55907110984ccdd2924a6@o4509985751629824.ingest.us.sentry.io/4509992387280906",
     # Add data like request headers and IP for users,
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     send_default_pii=True,
