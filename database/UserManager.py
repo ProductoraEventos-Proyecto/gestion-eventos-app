@@ -1,8 +1,12 @@
 import sqlite3
 import hashlib
+import os
 
 class UserManager:
-    def __init__(self, db_path='usuarios.db'):
+    def __init__(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(base_dir, '..', 'data', 'eventos.db')
+        db_path = os.path.normpath(db_path)
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
         self._crear_tabla_usuarios()

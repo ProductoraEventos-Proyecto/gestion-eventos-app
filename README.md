@@ -1,19 +1,103 @@
 # Gestion de entradas para Micro-Eventos 
 
 ## Equipo 
-* Daniel Zeballos 
-* Carlos Arévalo 
+- Daniel Zeballos 
+- Carlos Arévalo 
+
+---
 
 ## Decripción del proyecto 
-Esta es una aplicacion desarrollada en **Python** para una productora de eventos local. La herramienta está diseñada para gestionar micro-eventos, permitiendo un control completo sobre el ciclo de vida de cada evento, desde su creación hasta la gestión de entradas. El sistema incluye funcionalidades de CRUD, un módulo de autenticación básica y la generación de reportes clave para el seguimiento ágil. 
+Esta es una aplicación desarrollada en **Python** para una productora de eventos local. La herramienta está diseñada para gestionar micro-eventos, permitiendo un control completo sobre el ciclo de vida de cada evento, desde su creación hasta la gestión de entradas.
 
-El proyecto fue desarrollado ene le marco del curso de **Pruebas de Software**, con un enfoque en la validación y verificación del software, la implementación de un flujo de trabajo colaborativo con **GIT** y la aplicación de buenas prácticas de programación. 
+El sistema incluye funcionalidades de:
+- CRUD de eventos (Crear, Leer, Actualizar, Eliminar)
+- Distintos tipos de filtrado de eventos
+- Módulo de autenticación básica
+- Validación de datos y manejo de errores
+- Reportes de eventos para seguimiento ágil
 
-## Instalacion 
-Para la correcta ejecucion de la aplicacion es necesario tener instalado python, descargar o clonar el repositorio y realizar la intalacion de dependencias por medio del comando "pip install sentry-sdk". Para el testing ademas de python es necesaria la instalacion de la libreria pytest por medio del comando "pip install pytest". 
+El proyecto fue desarrollado en el marco del curso **Pruebas de Software**, con enfoque en:
+- Validación y Verificación del software
+- Flujo de trabajo colaborativo con **Git**
+- Buenas prácticas de programación
 
-## Como usar 
-Para utilizar la aplicacion es necesario abrir una terminal en la carpeta y ejecutar el archivo main.py a traves del comando "python main.py".
+---
+
+## Tabla de Contenidos
+1. [Instalación](#instalación)  
+2. [Estructura del Proyecto](#estructura-del-proyecto)  
+3. [Dependencias](#dependencias)  
+4. [Uso](#uso)  
+5. [Testing](#testing)   
+6. [Licencia](#licencia)
+
+---
+
+## Instalación 
+1.  Asegúrate de tener instalado **Python 3.12+**:
+    ```bash
+    python --version
+    ```
+2.  Clona el repositorio:
+    ```bash
+    git clone <URL_DEL_REPOSITORIO>
+    cd gestion-eventos-app
+    ```
+3.  Instala las dependencias necesarias para testing:
+    ```bash
+    pip install pytest
+    ```
+
+---
+
+
+## Estructura del Proyecto
+gestion-eventos-app/
+│
+├─ main.py                  
+├─ LICENSE         
+├─ README.md     
+├─ data/                
+│   ├─ eventos.db           
+│   └─ usuarios.db
+│
+├─ database/             
+│   ├─ EventManager.py      
+│   └─ UserManager.py
+│
+├─ Interface/                
+│   ├─ EventApp.py   
+│   └─ LoginApp.py
+│
+├─ Test/                     
+    ├─ test_event.py   
+    └─ test_login.py     
+
+---
+
+## Dependencias
+
+Algunas de las dependencias externas utilizadas en el proyecto son las siguientes: 
+* **sentry_sdk**: Para monitoreo y captura de errores
+* **pytest**: Framework de testing.
+
+    Comando para instalar pytest:
+    ```bash
+    pip install pytest
+    ```
+
+    Comando para instalar sentry_sdk:
+    ```bash
+    pip install sentry_sdk
+    ```
+
+---
+
+## Uso
+Para utilizar el progama, asegurate estar en la carpeta principal del proyecto. Luego abre el terminal y ejecuta el siguiente comando:
+```bash
+    Python main.py
+    ```
 
 ## Como contribuir 
 
