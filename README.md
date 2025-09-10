@@ -29,7 +29,9 @@ El proyecto fue desarrollado en el marco del curso **Pruebas de Software**, con 
 3. [Dependencias](#dependencias)  
 4. [Uso](#uso)  
 5. [Testing](#testing)   
-6. [Licencia](#licencia)
+6. [Monitoreo y Reporte de Errores](#monitoreo-y-reporte-de-errores)
+7. [Contribución](#contribución)
+8. [Licencia](#licencia)
 
 ---
 
@@ -97,11 +99,49 @@ Algunas de las dependencias externas utilizadas en el proyecto son las siguiente
 Para utilizar el progama, asegurate estar en la carpeta principal del proyecto. Luego abre el terminal y ejecuta el siguiente comando:
 ```bash
     Python main.py
-    ```
+```
+La interfaz gráfica permitirá:
 
-## Como contribuir 
+* Crear nuevos eventos.
+* Actualizar información de eventos existentes.
+* Eliminar eventos.
+* Gestionar cupos y entradas.
+* Buscar eventos por nombre, fecha, categoría o precio.
+
+---
+
+## Testing 
+
+Se incluye un conjunto de pruebas automatizadas usando `pytest`, para verificar la correcta funcionalidad del sistema.
+
+Ejecutar todos los tests:
+
+```bash
+python -m pytest Test/test_event.py
+python -m pytest Test/test_login.py
+```
+Se verifican 29 casos de prueba para EventApp y 26 casos de prueba para LoginApp
+
+---
+
+## Monitoreo y Reporte de Errores
+
+Este proyecto utiliza [Sentry](https://sentry.io) para el monitoreo de errores en tiempo real. Gracias a Sentry, podemos detectar y resolver problemas antes de que afecten a los usuarios.
+
+### Estado del proyecto
+- **Errores nuevos en los últimos 14 días:** 41
+- **Releases recientes:** 5 versiones desplegadas
+- **Sesiones libres de errores:** Activado
+- **Usuarios libres de errores:** Activado
+
+Puedes ver el panel completo en [Sentry Insights del proyecto](https://usm-iv.sentry.io/insights/projects/python/?issuesType=new&project=4509992387280906)
+---
+
+## Contribución
 
 Para contribuir al proyecto haz un fork del repositorio, crea una rama con los cambios que propones, confirma los cambios hechos con sus respectivos commits y envía un Pull Request con una descripción clara de tu aporte.
+
+--- 
 
 ## Licencia
 
