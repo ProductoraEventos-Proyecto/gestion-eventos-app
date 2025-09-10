@@ -54,23 +54,29 @@ El proyecto fue desarrollado en el marco del curso **Pruebas de Software**, con 
 
 
 ## Estructura del Proyecto
+
+
 gestion-eventos-app/
-│
+
 ├─ main.py                  
 ├─ LICENSE         
 ├─ README.md     
 ├─ data/                
 │   ├─ eventos.db           
 │   └─ usuarios.db
-│
+
+
 ├─ database/             
 │   ├─ EventManager.py      
 │   └─ UserManager.py
-│
+
+
+
 ├─ Interface/                
 │   ├─ EventApp.py   
 │   └─ LoginApp.py
-│
+
+
 ├─ Test/                     
     ├─ test_event.py   
     └─ test_login.py     
@@ -134,7 +140,10 @@ Este proyecto utiliza [Sentry](https://sentry.io) para el monitoreo de errores e
 - **Sesiones libres de errores:** Activado
 - **Usuarios libres de errores:** Activado
 
+
 Puedes ver el panel completo en [Sentry Insights del proyecto](https://usm-iv.sentry.io/insights/projects/python/?issuesType=new&project=4509992387280906)
+
+
 ---
 
 ## Contribución
