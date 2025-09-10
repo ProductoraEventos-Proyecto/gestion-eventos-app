@@ -1,17 +1,25 @@
 import tkinter as tk
 from tkinter import messagebox
 from database.UserManager import UserManager
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://f5901102ece55907110984ccdd2924a6@o4509985751629824.ingest.us.sentry.io/4509992387280906",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 class LoginApp:
     def __init__(self, root, on_success_callback):
         self.root = root
         self.on_success_callback = on_success_callback
         self.root.title("Bienvenido a Micro-Eventos")
-        self.root.state('zoomed') 
+        self.root.state('zoomed')
         self.root.resizable(True, True)
         self.user_manager = UserManager()
 
-        self.mode = 'login'  
+        self.mode = 'login'
 
         # Fondo principal
         self.root.configure(bg="#263445")
@@ -66,7 +74,7 @@ class LoginApp:
         )
 
         self.volver_button.pack(side=tk.LEFT, padx=10)
-        self.volver_button.pack_forget() 
+        self.volver_button.pack_forget()
 
 
         # Estilos de focus
@@ -76,12 +84,18 @@ class LoginApp:
         self.password_entry.bind("<FocusOut>", lambda e: self.password_entry.config(bg="#f8f8f8"))
 
     def iniciar_sesion(self):
-        username = self.username_entry.get()
-        password = self.password_entry.get()
-        if self.user_manager.verificar_usuario(username, password):
-            self.on_success_callback(username)
-        else:
-            messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
+        try:
+            username = self.username_entry.get()
+            password = self.password_entry.get()
+            if self.user_manager.verificar_usuario(username, password):
+                sentry_sdk.capture_message(f"Inicio de sesión exitoso para el usuario: {username}")
+                self.on_success_callback(username)
+            else:
+                sentry_sdk.capture_message("Intento de inicio de sesión fallido.", level="warning")
+                messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            messagebox.showerror("Error", "Ocurrió un error inesperado al iniciar sesión.")
 
     def crear_cuenta(self):
         self.mode = "register"
@@ -91,17 +105,24 @@ class LoginApp:
         self.volver_button.pack(side=tk.LEFT, padx=10)
         
     def confirmar_creacion_cuenta(self):
-        username = self.username_entry.get()
-        password = self.password_entry.get()
-        if not username or not password:
-            messagebox.showerror("Error", "Usuario y contraseña no pueden estar vacíos.")
-            return
+        try:
+            username = self.username_entry.get()
+            password = self.password_entry.get()
+            if not username or not password:
+                messagebox.showerror("Error", "Usuario y contraseña no pueden estar vacíos.")
+                return
 
-        if self.user_manager.crear_usuario(username, password):
-            messagebox.showinfo("¡Éxito!", "Cuenta creada con éxito. ¡Ahora puedes iniciar sesión!")
-            self.volver_a_login()
-        else:
-            messagebox.showerror("Error", "El usuario ya existe. Por favor, elige otro.")
+            if self.user_manager.crear_usuario(username, password):
+                sentry_sdk.capture_message(f"Nuevo usuario registrado: {username}")
+                messagebox.showinfo("¡Éxito!", "Cuenta creada con éxito. ¡Ahora puedes iniciar sesión!")
+                self.volver_a_login()
+            else:
+                sentry_sdk.capture_message(f"Intento de registro fallido: el usuario {username} ya existe.", level="warning")
+                messagebox.showerror("Error", "El usuario ya existe. Por favor, elige otro.")
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            messagebox.showerror("Error", "Ocurrió un error inesperado al crear la cuenta.")
+
 
     def volver_a_login(self):
         # Vuelve al modo login
