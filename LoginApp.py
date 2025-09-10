@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from database.UserManager import UserManager
+from UserManager import UserManager
 import sentry_sdk
 
 sentry_sdk.init(

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import sentry_sdk
-from database.EventManager import EventManager
+from EventManager import EventManager
 
 
 sentry_sdk.init(
