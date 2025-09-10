@@ -18,29 +18,42 @@ def app(monkeypatch):
     monkeypatch.setattr("tkinter.messagebox.showinfo", MagicMock())
     monkeypatch.setattr("tkinter.messagebox.askyesno", MagicMock(return_value=True))
     
+    # Mock pack para frames de interfaz
+    test_app.form_frame.pack = MagicMock()
+    test_app.registro_frame.pack = MagicMock()
+
     yield test_app
     mock_root.destroy()
 
 @pytest.mark.parametrize("nombre,descripcion,fecha,categoria,precio,cupos,esperado", [
     ("Concierto", "Música en vivo", "10-09-2025", "Musica", "5000", "100", True),
     ("E"*500, "Descripción larga", "10-09-2025", "Categoria", "1000", "50", True),
-    ("Evento", "", "10-09-2025", "Cat", "1000", "10", True),
+    ("Evento", "", "10-09-2025", "Cat", "1000", "10", False),
     ("", "Desc", "10-09-2025", "Cat", "1000", "10", False),
-    ("Evento", "Desc", "32-13-2025", "Cat", "1000", "10", True),  # Fecha inválida
+    ("Evento", "Desc", "32-13-2025", "Cat", "1000", "10", False),  # Fecha inválida
     ("Evento", "Desc", "10-09-2025", "Cat", "abc", "10", False),
     ("Evento", "Desc", "10-09-2025", "Cat", "1000", "abc", False),
     ("🎉Evento🎵", "🎤🎶🌟", "29-02-2024", "Entretenimiento", "2000", "50", True),
-    ("EventoNeg", "Desc", "10-09-2025", "Cat", "-500", "10", True),
-    ("CeroCupos", "Desc", "10-09-2025", "Cat", "100", "0", True),
+    ("EventoNeg", "Desc", "10-09-2025", "Cat", "-500", "10", False),
+    ("CeroCupos", "Desc", "10-09-2025", "Cat", "100", "0", False),
 ])
 def test_crear_eventos_varios(app, nombre, descripcion, fecha, categoria, precio, cupos, esperado):
+    app.nombre_entry.delete(0, tk.END)
+    app.descripcion_entry.delete(0, tk.END)
+    app.fecha_entry.delete(0, tk.END)
+    app.categoria_entry.delete(0, tk.END)
+    app.precio_entry.delete(0, tk.END)
+    app.cupos_entry.delete(0, tk.END)
+
     app.nombre_entry.insert(0, nombre)
     app.descripcion_entry.insert(0, descripcion)
     app.fecha_entry.insert(0, fecha)
     app.categoria_entry.insert(0, categoria)
     app.precio_entry.insert(0, precio)
     app.cupos_entry.insert(0, cupos)
+
     app.guardar_evento()
+
     if esperado:
         app.event_manager.crear_evento.assert_called()
     else:
@@ -75,8 +88,8 @@ def test_actualizar_evento_unicode(app):
     app.descripcion_entry.insert(0, "🎤🎶Mod")
     app.fecha_entry.insert(0, "01-03-2024")
     app.categoria_entry.insert(0, "Entretenimiento")
-    app.precio_entry.insert(0, "0")
-    app.cupos_entry.insert(0, "0")
+    app.precio_entry.insert(0, "10")
+    app.cupos_entry.insert(0, "5")
     app.guardar_evento()
     app.event_manager.actualizar_evento.assert_called()
 

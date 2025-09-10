@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import sentry_sdk
 from database.EventManager import EventManager
+from datetime import datetime
 
 
 sentry_sdk.init(
@@ -200,18 +201,43 @@ class EventApp:
 
     def guardar_evento(self):
         try:
-            nombre = self.nombre_entry.get()
-            descripcion = self.descripcion_entry.get()
-            fecha = self.fecha_entry.get()
-            categoria = self.categoria_entry.get()
-            try:
-                precio = float(self.precio_entry.get())
-                cupos = int(self.cupos_entry.get())
-            except ValueError as e:
-                sentry_sdk.capture_exception(e)
-                messagebox.showerror("Error", "Precio y cupos deben ser números válidos.")
+            nombre = self.nombre_entry.get().strip()
+            descripcion = self.descripcion_entry.get().strip()
+            fecha = self.fecha_entry.get().strip()
+            categoria = self.categoria_entry.get().strip()
+            precio = self.precio_entry.get().strip()
+            cupos = self.cupos_entry.get().strip()
+            
+            if not descripcion or len(descripcion.strip()) < 3:
+                messagebox.showerror("Error", "La descripción debe tener al menos 3 caracteres.")
                 return
 
+
+            try:
+                datetime.strptime(fecha, "%d-%m-%Y")
+            except ValueError:
+                messagebox.showerror("Error", "La fecha ingresada no es válida (use formato DD-MM-YYYY)")
+                return
+            
+
+            try:
+                precio_val = int(precio)
+                if precio_val <= 0:
+                    messagebox.showerror("Error", "El precio no puede ser negativo o cero")
+                    return
+            except ValueError:
+                messagebox.showerror("Error", "El precio debe ser un número")
+                return
+            
+            try:
+                cupos_val = int(cupos)
+                if cupos_val <= 0:
+                    messagebox.showerror("Error", "Los cupos no pueden ser negativos o cero")
+                    return
+            except ValueError:
+                messagebox.showerror("Error", "Los cupos deben ser un número")
+                return
+            
             if not nombre or not fecha or not categoria:
                 messagebox.showerror("Error", "Completa todos los campos obligatorios.")
                 return
@@ -219,7 +245,7 @@ class EventApp:
             if self.selected_event_id:
                 sentry_sdk.capture_message(f"Actualizando evento ID: {self.selected_event_id}")
                 actualizado = self.event_manager.actualizar_evento(
-                    self.selected_event_id, nombre, descripcion, fecha, categoria, precio, cupos, self.username
+                    self.selected_event_id, nombre, descripcion, fecha, categoria, precio_val, cupos_val, self.username
                 )
                 if actualizado:
                     messagebox.showinfo("Éxito", "Evento actualizado correctamente.")
@@ -228,7 +254,7 @@ class EventApp:
             else:
                 sentry_sdk.capture_message("Creando nuevo evento.")
                 self.event_manager.crear_evento(
-                    nombre, descripcion, fecha, categoria, precio, cupos, self.username
+                    nombre, descripcion, fecha, categoria, precio_val, cupos_val, self.username
                 )
                 messagebox.showinfo("Éxito", "Evento creado correctamente.")
 
