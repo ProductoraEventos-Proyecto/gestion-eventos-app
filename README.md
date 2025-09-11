@@ -21,6 +21,8 @@ El proyecto fue desarrollado en el marco del curso **Pruebas de Software**, con 
 - Flujo de trabajo colaborativo con **Git**
 - Buenas prácticas de programación
 
+Finalmente el repositorio cuenta con un pdf llamado "informe.pdf" que cuenta con varias especificaciones y decisiones realizadas al elaborar este proyeccto
+
 ---
 
 ## Tabla de Contenidos
