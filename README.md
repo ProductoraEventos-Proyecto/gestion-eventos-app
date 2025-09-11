@@ -97,7 +97,7 @@ Algunas de las dependencias externas utilizadas en el proyecto son las siguiente
 Para utilizar el progama, asegurate estar en la carpeta principal del proyecto. Luego abre el terminal y ejecuta el siguiente comando:
 ```bash
     Python main.py
-    ```
+```
 
 ## Como contribuir 
 
